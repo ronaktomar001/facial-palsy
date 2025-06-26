@@ -1,0 +1,150 @@
+!mkdir -p ./kaggle
+!cp kaggle.json ./kaggle/
+!kaggle datasets download -d msambare/fer2013
+!unzip /content/fer2013.zip -d/content/
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
+from keras.optimizers import Adam
+train_data = ImageDataGenerator(rescale=1./255)
+validation_data = ImageDataGenerator(rescale=1./255)
+#preprocess
+train_generator = train_data.flow_from_directory(
+    '/content/train',
+    target_size=(48, 48),
+    batch_size=64,
+    color_mode="grayscale",
+    class_mode='categorical')
+validation_generator = validation_data.flow_from_directory(
+    '/content/test',
+    target_size=(48,48),
+    batch_size=64,
+    color_mode="grayscale",
+    class_mode='categorical'
+)
+import os
+import pandas as pd
+
+def count_files_in_subdirs(directory, sets_name):
+    counts = {}
+    for items in os.listdir(directory):
+         item_path= os.path.join(directory, items)
+         if os.path.isdir(item_path):
+            counts[items] = len(os.listdir(item_path))
+    df = pd.DataFrame(counts, index=[sets_name])
+    return df
+train_dir = '/content/train'
+test_dir = '/content/test'
+
+train_count = count_files_in_subdirs(train_dir, 'train')
+print(train_count)
+test_count = count_files_in_subdirs(test_dir, 'test')
+print(test_count)
+import pandas as pd
+print("Number of training and testing images:", train_count, test_count)
+# bar chart:
+df = pd.DataFrame({'Count': [train_count, test_count]}, index=['Train','Test'])
+plt.show()
+  
+train_count.plot(kind='bar')  
+
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
+#ImageDataGenerator has been moved to keras.utils
+from keras.utils import image_dataset_from_directory # Use image_dataset_from_directory instead of ImageDataGenerator
+from keras.preprocessing.image import load_img
+from keras.optimizers import Adam
+import os # Import the 'os' module for directory operations
+import matplotlib.pyplot as plt # Import Matplotlib for plotting
+
+
+from keras.models import Sequential
+from keras.layers import Dense, Conv2D, Dropout, Flatten, MaxPooling2D
+from keras.optimizers import Adam
+from keras.preprocessing.image import load_img
+import os # Import the 'os' module for directory operations
+import matplotlib.pyplot as plt # Import Matplotlib for plotting
+
+expression = 'happy'
+picture_size = 48
+folder_path = '/content/'
+plt.figure(figsize= (12,12))
+for i in range(1, 10, 1):
+    plt.subplot(3,3,i)
+    img_path = folder_path + "train/" + expression + "/" + os.listdir(folder_path + "train/" + expression)[i]
+    img = load_img(img_path, target_size=(picture_size, picture_size))
+    plt.imshow(img)
+plt.show()
+
+test_count.plot(kind='bar')
+  
+
+expression = 'disgust'
+picture_size = 48
+folder_path = '/content/'
+plt.figure(figsize= (12,12))
+for i in range(1, 10, 1):
+    plt.subplot(3,3,i)
+    img_path = folder_path + "train/" + expression + "/" + os.listdir(folder_path + "train/" + expression)[i]
+    img = load_img(img_path, target_size=(picture_size, picture_size))
+    plt.imshow(img)
+plt.show()  
+
+
+ expression = 'fear'
+picture_size = 48
+folder_path = '/content/'
+plt.figure(figsize= (12,12))
+for i in range(1, 10, 1):
+    plt.subplot(3,3,i)
+    img_path = folder_path + "train/" + expression + "/" + os.listdir(folder_path + "train/" + expression)[i]
+    img = load_img(img_path, target_size=(picture_size, picture_size))
+    plt.imshow(img)
+plt.show()
+
+expression = 'neutral'
+picture_size = 48
+folder_path = '/content/'
+plt.figure(figsize= (12,12))
+for i in range(1, 10, 1):
+    plt.subplot(3,3,i)
+    img_path = folder_path + "train/" + expression + "/" + os.listdir(folder_path + "train/" + expression)[i]
+    img = load_img(img_path, target_size=(picture_size, picture_size))
+    plt.imshow(img)
+plt.show()
+
+
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
+from keras.optimizers import Adam
+
+emotion_model = Sequential()
+
+emotion_model.add(Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=(48, 48, 1)))
+emotion_model.add(Conv2D(64, kernel_size=(3, 3), activation='relu'))
+emotion_model.add(MaxPooling2D(pool_size=(2, 2)))
+emotion_model.add(Dropout(0.25))
+emotion_model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
+emotion_model.add(MaxPooling2D(pool_size=(2, 2)))
+emotion_model.add(Conv2D(128, kernel_size=(3, 3), activation='relu'))
+emotion_model.add(MaxPooling2D(pool_size=(2, 2)))
+emotion_model.add(Dropout(0.25))
+emotion_model.add(Flatten())
+emotion_model.add(Dense(1024, activation='relu'))
+emotion_model.add(Dropout(0.5))
+emotion_model.add(Dense(7, activation='softmax'))
+emotion_model.compile(loss='categorical_crossentropy', optimizer=Adam(learning_rate=0.0001), metrics=['accuracy'])
+emotion_model.summary()
+
+
+emotion_model_info = emotion_model.fit(
+    train_generator,
+    steps_per_epoch=28709 // 64,
+    epochs=50,
+    validation_data=validation_generator,
+    validation_steps=7178 // 64
+)  
